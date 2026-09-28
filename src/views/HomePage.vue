@@ -11,8 +11,18 @@
 
         <h1>Secure Text</h1>
         <p class="description">
-          Encrypt and decrypt your text using AES encryption.
+          Encrypt and decrypt your text using AES or Caesar Cipher.
         </p>
+
+        <!-- Encryption Method -->
+        <div class="input-group">
+          <label>Encryption Method</label>
+
+          <select v-model="encryptionMethod">
+            <option value="AES">AES</option>
+            <option value="Caesar">Caesar Cipher</option>
+          </select>
+        </div>
 
         <!-- Text Input -->
         <div class="input-group">
@@ -25,14 +35,31 @@
           ></textarea>
         </div>
 
-        <!-- Encryption Key -->
-        <div class="input-group">
+        <!-- AES Key -->
+        <div
+          v-if="encryptionMethod === 'AES'"
+          class="input-group"
+        >
           <label>Encryption Key</label>
 
           <input
             v-model="encryptionKey"
             type="password"
             placeholder="Enter your encryption key"
+          />
+        </div>
+
+        <!-- Caesar Shift -->
+        <div
+          v-if="encryptionMethod === 'Caesar'"
+          class="input-group"
+        >
+          <label>Shift Value</label>
+
+          <input
+            v-model.number="shiftValue"
+            type="number"
+            placeholder="Enter shift value"
           />
         </div>
 
@@ -91,13 +118,24 @@
 import { ref } from 'vue'
 import CryptoJS from 'crypto-js'
 
+
+// -------------------------
+// VARIABLES
+// -------------------------
+
 const inputText = ref('')
 const encryptionKey = ref('')
 const result = ref('')
 const errorMessage = ref('')
 
+const encryptionMethod = ref('AES')
+const shiftValue = ref(3)
 
+
+// -------------------------
 // ENCRYPT
+// -------------------------
+
 function encryptText() {
 
   errorMessage.value = ''
@@ -107,81 +145,175 @@ function encryptText() {
     return
   }
 
-  if (!encryptionKey.value.trim()) {
-    errorMessage.value = 'Please enter an encryption key.'
+
+  // AES ENCRYPTION
+  if (encryptionMethod.value === 'AES') {
+
+    if (!encryptionKey.value.trim()) {
+      errorMessage.value = 'Please enter an encryption key.'
+      return
+    }
+
+    try {
+
+      const encrypted = CryptoJS.AES.encrypt(
+        inputText.value,
+        encryptionKey.value
+      ).toString()
+
+      result.value = encrypted
+
+    } catch (error) {
+
+      console.error(error)
+      errorMessage.value = 'AES encryption failed.'
+
+    }
+
     return
   }
 
-  try {
 
-    const encrypted = CryptoJS.AES.encrypt(
+  // CAESAR CIPHER
+  if (encryptionMethod.value === 'Caesar') {
+
+    result.value = caesarCipher(
       inputText.value,
-      encryptionKey.value
-    ).toString()
-
-    result.value = encrypted
-
-  } catch (error) {
-
-    console.error(error)
-    errorMessage.value = 'Encryption failed.'
+      shiftValue.value
+    )
 
   }
 }
 
 
+// -------------------------
 // DECRYPT
+// -------------------------
+
 function decryptText() {
 
   errorMessage.value = ''
+
 
   if (!result.value.trim()) {
     errorMessage.value = 'Please encrypt some text first.'
     return
   }
 
-  if (!encryptionKey.value.trim()) {
-    errorMessage.value = 'Please enter the encryption key.'
-    return
-  }
 
-  try {
+  // AES DECRYPTION
+  if (encryptionMethod.value === 'AES') {
 
-    const decrypted = CryptoJS.AES.decrypt(
-      result.value,
-      encryptionKey.value
-    )
-
-    const originalText = decrypted.toString(
-      CryptoJS.enc.Utf8
-    )
-
-    if (!originalText) {
-      errorMessage.value =
-        'Decryption failed. Please check your encryption key.'
+    if (!encryptionKey.value.trim()) {
+      errorMessage.value = 'Please enter an encryption key.'
       return
     }
 
-    result.value = originalText
+    try {
 
-  } catch (error) {
+      const decrypted = CryptoJS.AES.decrypt(
+        result.value,
+        encryptionKey.value
+      )
 
-    console.error(error)
+      const originalText = decrypted.toString(
+        CryptoJS.enc.Utf8
+      )
 
-    errorMessage.value =
-      'Decryption failed. Please check the encrypted text and key.'
+
+      if (!originalText) {
+
+        errorMessage.value =
+          'Decryption failed. Please check your encryption key.'
+
+        return
+      }
+
+      result.value = originalText
+
+    } catch (error) {
+
+      console.error(error)
+
+      errorMessage.value =
+        'AES decryption failed.'
+
+    }
+
+    return
+  }
+
+
+  // CAESAR CIPHER DECRYPTION
+  if (encryptionMethod.value === 'Caesar') {
+
+    result.value = caesarCipher(
+      result.value,
+      -shiftValue.value
+    )
 
   }
 }
 
 
+// -------------------------
+// CAESAR CIPHER
+// -------------------------
+
+function caesarCipher(
+  text: string,
+  shift: number
+): string {
+
+  const normalizedShift =
+    ((shift % 26) + 26) % 26
+
+  return text
+    .split('')
+    .map((character) => {
+
+      const code = character.charCodeAt(0)
+
+
+      // Uppercase letters
+      if (code >= 65 && code <= 90) {
+
+        return String.fromCharCode(
+          ((code - 65 + normalizedShift) % 26) + 65
+        )
+
+      }
+
+
+      // Lowercase letters
+      if (code >= 97 && code <= 122) {
+
+        return String.fromCharCode(
+          ((code - 97 + normalizedShift) % 26) + 97
+        )
+
+      }
+
+
+      // Spaces, numbers, punctuation
+      return character
+
+    })
+    .join('')
+}
+
+
+// -------------------------
 // CLEAR
+// -------------------------
+
 function clearAll() {
 
   inputText.value = ''
   encryptionKey.value = ''
   result.value = ''
   errorMessage.value = ''
+  shiftValue.value = 3
 
 }
 
@@ -195,6 +327,7 @@ function clearAll() {
   margin: 0 auto;
 }
 
+
 h1 {
   margin-top: 20px;
   margin-bottom: 5px;
@@ -202,17 +335,19 @@ h1 {
   font-weight: bold;
 }
 
+
 .description {
   margin-bottom: 25px;
   color: #666;
 }
 
 
-/* Input sections */
+/* Input groups */
 
 .input-group {
   margin-bottom: 20px;
 }
+
 
 .input-group label {
   display: block;
@@ -235,15 +370,17 @@ textarea {
 }
 
 
-/* Input */
+/* Text input */
 
-input {
+input,
+select {
   width: 100%;
   box-sizing: border-box;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
+  background: white;
 }
 
 
@@ -256,6 +393,7 @@ input {
   margin-bottom: 15px;
 }
 
+
 .buttons button {
   flex: 1;
   padding: 12px;
@@ -266,10 +404,12 @@ input {
   cursor: pointer;
 }
 
+
 .encrypt-button {
   background: #3880ff;
   color: white;
 }
+
 
 .decrypt-button {
   background: #2dd36f;
