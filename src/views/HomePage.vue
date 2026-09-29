@@ -34,12 +34,13 @@
 
       <div class="page-container">
 
+
         <div class="hero-card">
 
           <div class="hero-content">
 
             <div class="small-title">
-              HELLO, LAYII! 
+              HELLO, LAYII!
             </div>
 
             <h1>
@@ -48,7 +49,7 @@
 
             <p>
               Choose a cipher, type your message,
-              and keep your text safe! 
+              and keep your text safe!
             </p>
 
           </div>
@@ -71,7 +72,7 @@
 
               <div>
                 <h2>
-                  Choose Your Cipher 
+                  Choose Your Cipher
                 </h2>
 
                 <p>
@@ -88,11 +89,11 @@
             >
 
               <option value="AES">
-                 AES Encryption
+                AES Encryption
               </option>
 
               <option value="Caesar">
-                 Caesar Cipher
+                Caesar Cipher
               </option>
 
             </select>
@@ -111,7 +112,7 @@
 
               <div>
                 <h2>
-                  Your Message 
+                  Your Message
                 </h2>
 
                 <p>
@@ -125,7 +126,7 @@
             <textarea
               v-model="inputText"
               class="cute-textarea"
-              placeholder="Write something here... "
+              placeholder="Write something here..."
               rows="6"
             ></textarea>
 
@@ -179,7 +180,6 @@
             />
 
 
-
             <input
               v-else
               v-model.number="shiftValue"
@@ -191,14 +191,12 @@
           </div>
 
 
-
           <div class="button-container">
 
             <button
               class="cute-button encrypt-button"
               @click="encryptText"
             >
-
 
               Encrypt
 
@@ -210,7 +208,6 @@
               @click="decryptText"
             >
 
-          
               Decrypt
 
             </button>
@@ -218,13 +215,10 @@
           </div>
 
 
-      
-
           <div
             v-if="errorMessage"
             class="error-box"
           >
-
 
             <span>
               {{ errorMessage }}
@@ -242,7 +236,7 @@
               <div>
 
                 <h2>
-                  Your Result 
+                  Your Result
                 </h2>
 
                 <p>
@@ -260,7 +254,7 @@
               class="result-textarea"
               rows="6"
               readonly
-              placeholder="Your result will appear here... "
+              placeholder="Your result will appear here..."
             ></textarea>
 
           </div>
@@ -279,7 +273,6 @@
 
 
         </div>
-
 
 
         <div class="footer">
@@ -306,8 +299,6 @@ import { ref } from 'vue'
 import CryptoJS from 'crypto-js'
 
 
-
-
 const inputText = ref('')
 const encryptionKey = ref('')
 const result = ref('')
@@ -329,8 +320,6 @@ function encryptText() {
 
     return
   }
-
-
 
 
   if (encryptionMethod.value === 'AES') {
@@ -368,7 +357,6 @@ function encryptText() {
 
 
 
-
   if (encryptionMethod.value === 'Caesar') {
 
     result.value =
@@ -395,7 +383,6 @@ function decryptText() {
 
     return
   }
-
 
 
 
@@ -450,7 +437,6 @@ function decryptText() {
 
 
 
-
   if (encryptionMethod.value === 'Caesar') {
 
     result.value =
@@ -483,8 +469,6 @@ function caesarCipher(
         character.charCodeAt(0)
 
 
-  
-
       if (
         code >= 65 &&
         code <= 90
@@ -496,8 +480,6 @@ function caesarCipher(
 
       }
 
-
-   
 
       if (
         code >= 97 &&
@@ -540,6 +522,7 @@ function clearAll() {
 ion-content {
 
   --background: #fff5fa;
+  --overflow: auto;
 
 }
 
@@ -644,11 +627,15 @@ ion-content {
 
 .page-container {
 
+  width: 100%;
+
   max-width: 850px;
 
   margin: auto;
 
   padding: 30px 18px 40px;
+
+  box-sizing: border-box;
 
   font-family: 'Fredoka', 'Trebuchet MS', sans-serif;
 
@@ -661,6 +648,8 @@ ion-content {
 .page-container textarea {
 
   font-family: inherit;
+
+  box-sizing: border-box;
 
 }
 
@@ -828,6 +817,8 @@ ion-content {
 
   box-shadow:
     0 10px 30px rgba(170, 80, 120, 0.10);
+
+  box-sizing: border-box;
 
 }
 
@@ -1101,6 +1092,8 @@ ion-content {
 
   border: 2px dashed #f2b8cf;
 
+  box-sizing: border-box;
+
 }
 
 
@@ -1234,9 +1227,19 @@ ion-content {
 
 @media (max-width: 600px) {
 
+  ion-content {
+    --overflow: auto;
+  }
+
   .page-container {
 
+    width: 100%;
+
+    max-width: 100%;
+
     padding: 20px 12px 30px;
+
+    box-sizing: border-box;
 
   }
 
@@ -1276,6 +1279,18 @@ ion-content {
   .header-heart {
 
     font-size: 24px;
+
+  }
+
+
+  .cute-select,
+  .cute-input,
+  .cute-textarea,
+  .result-textarea {
+
+    width: 100%;
+
+    max-width: 100%;
 
   }
 
