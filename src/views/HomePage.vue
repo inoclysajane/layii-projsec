@@ -2,34 +2,6 @@
 <template>
   <ion-page>
 
-    <!-- HEADER -->
-    <ion-header class="app-header">
-      <ion-toolbar>
-
-        <div class="header-content">
-
-          <div class="brand">
-
-            <div>
-              <div class="brand-name">
-                ProjSec
-              </div>
-
-              <div class="brand-subtitle">
-                Secure Text
-              </div>
-            </div>
-          </div>
-
-          <div class="header-heart">
-            ♡
-          </div>
-
-        </div>
-      </ion-toolbar>
-    </ion-header>
-
-
     <ion-content>
 
       <div class="page-container">
@@ -41,15 +13,6 @@
             <div class="small-title">
               HELLO, LAYII!
             </div>
-
-            <h1>
-              Protect Your Text
-            </h1>
-
-            <p>
-              Choose a cipher, type your message,
-              and keep your text safe!
-            </p>
 
           </div>
 
@@ -125,7 +88,7 @@
               v-model="inputText"
               class="cute-textarea"
               placeholder="Write something here..."
-              rows="6"
+              rows="3"
             ></textarea>
 
           </div>
@@ -245,7 +208,7 @@
             <textarea
               v-model="result"
               class="result-textarea"
-              rows="6"
+              rows="4"
               readonly
               placeholder="Your result will appear here..."
             ></textarea>
@@ -268,9 +231,6 @@
         <!-- FOOTER -->
         <div class="footer">
 
-          <span>
-            Made with ♡ using ProjSec
-          </span>
 
         </div>
 
@@ -306,10 +266,19 @@ async function scrollToResult() {
 
   await nextTick()
 
-  resultBox.value?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'start'
-  })
+  const content = document.querySelector('ion-content') as (HTMLElement & {
+    getScrollElement: () => Promise<HTMLElement>
+    scrollToPoint: (x: number, y: number, duration?: number) => Promise<void>
+  }) | null
+
+  if (!content || !resultBox.value) return
+
+  const scroller = await content.getScrollElement()
+  const resultTop = resultBox.value.getBoundingClientRect().top
+  const scrollerTop = scroller.getBoundingClientRect().top
+  const scrollPosition = scroller.scrollTop + resultTop - scrollerTop - 12
+
+  await content.scrollToPoint(0, scrollPosition, 300)
 
 }
 
@@ -546,102 +515,6 @@ ion-content::part(scroll) {
 
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-
-}
-
-
-.app-header ion-toolbar {
-
-  --background: #ffb6d5;
-
-  --color: #6f3b52;
-
-}
-
-
-.header-content {
-
-  height: 68px;
-
-  max-width: 900px;
-
-  margin: auto;
-
-  padding: 0 20px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-}
-
-
-.brand {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-
-}
-
-
-.brand-icon {
-
-  width: 42px;
-
-  height: 42px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  border-radius: 14px;
-
-  background: #fff;
-
-  box-shadow:
-    0 4px 10px rgba(150, 75, 110, 0.12);
-
-  font-size: 22px;
-
-}
-
-
-.brand-name {
-
-  color: #6f3b52;
-
-  font-size: 21px;
-
-  font-weight: 800;
-
-}
-
-
-.brand-subtitle {
-
-  color: #9c637a;
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  letter-spacing: 1.5px;
-
-}
-
-
-.header-heart {
-
-  color: #fff;
-
-  font-size: 30px;
 
 }
 
@@ -1311,7 +1184,7 @@ ion-content::part(scroll) {
   }
 
   .button-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
 
@@ -1349,7 +1222,10 @@ ion-content::part(scroll) {
     font-size: 16px;
   }
 
-  .cute-textarea,
+  .cute-textarea {
+    min-height: 96px;
+  }
+
   .result-textarea {
     min-height: 120px;
   }
@@ -1357,22 +1233,6 @@ ion-content::part(scroll) {
   .clear-button {
     width: 100%;
     margin-top: 12px;
-  }
-
-  .header-content {
-    padding: 0 12px;
-  }
-
-  .brand-name {
-    font-size: 18px;
-  }
-
-  .brand-subtitle {
-    font-size: 9px;
-  }
-
-  .header-heart {
-    font-size: 24px;
   }
 
 }
