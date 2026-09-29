@@ -1,3 +1,4 @@
+```vue
 <template>
   <ion-page>
 
@@ -25,7 +26,6 @@
           </div>
 
         </div>
-
       </ion-toolbar>
     </ion-header>
 
@@ -33,7 +33,6 @@
     <ion-content>
 
       <div class="page-container">
-
 
         <div class="hero-card">
 
@@ -59,7 +58,6 @@
 
         <!-- MAIN CARD -->
         <div class="main-card">
-
 
           <!-- METHOD -->
           <div class="form-section">
@@ -145,23 +143,19 @@
               <div>
 
                 <h2>
-
                   {{
                     encryptionMethod === 'AES'
                       ? 'Secret Key'
                       : 'Shift Number'
                   }}
-
                 </h2>
 
                 <p>
-
                   {{
                     encryptionMethod === 'AES'
                       ? 'Enter your secret encryption key.'
                       : 'Choose how many letters to shift.'
                   }}
-
                 </p>
 
               </div>
@@ -170,7 +164,6 @@
 
 
             <!-- AES -->
-
             <input
               v-if="encryptionMethod === 'AES'"
               v-model="encryptionKey"
@@ -180,6 +173,7 @@
             />
 
 
+            <!-- CAESAR -->
             <input
               v-else
               v-model.number="shiftValue"
@@ -191,15 +185,14 @@
           </div>
 
 
+          <!-- BUTTONS -->
           <div class="button-container">
 
             <button
               class="cute-button encrypt-button"
               @click="encryptText"
             >
-
               Encrypt
-
             </button>
 
 
@@ -207,14 +200,13 @@
               class="cute-button decrypt-button"
               @click="decryptText"
             >
-
               Decrypt
-
             </button>
 
           </div>
 
 
+          <!-- ERROR -->
           <div
             v-if="errorMessage"
             class="error-box"
@@ -228,8 +220,10 @@
 
 
           <!-- RESULT -->
-
-          <div class="result-box">
+          <div
+            ref="resultBox"
+            class="result-box"
+          >
 
             <div class="result-title">
 
@@ -244,7 +238,6 @@
                 </p>
 
               </div>
-
 
             </div>
 
@@ -261,27 +254,23 @@
 
 
           <!-- CLEAR -->
-
           <button
             class="clear-button"
             @click="clearAll"
           >
-
             Clear Everything
-
           </button>
 
 
         </div>
 
 
+        <!-- FOOTER -->
         <div class="footer">
-
 
           <span>
             Made with ♡ using ProjSec
           </span>
-
 
         </div>
 
@@ -295,7 +284,7 @@
 
 <script setup lang="ts">
 
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import CryptoJS from 'crypto-js'
 
 
@@ -308,8 +297,25 @@ const encryptionMethod = ref('AES')
 const shiftValue = ref(3)
 
 
+// RESULT SECTION REFERENCE
+const resultBox = ref<HTMLElement | null>(null)
 
-function encryptText() {
+
+// SCROLL TO RESULT
+async function scrollToResult() {
+
+  await nextTick()
+
+  resultBox.value?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  })
+
+}
+
+
+// ENCRYPT
+async function encryptText() {
 
   errorMessage.value = ''
 
@@ -322,6 +328,7 @@ function encryptText() {
   }
 
 
+  // AES
   if (encryptionMethod.value === 'AES') {
 
     if (!encryptionKey.value.trim()) {
@@ -343,6 +350,8 @@ function encryptText() {
 
       result.value = encrypted
 
+      await scrollToResult()
+
     } catch (error) {
 
       console.error(error)
@@ -356,7 +365,7 @@ function encryptText() {
   }
 
 
-
+  // CAESAR
   if (encryptionMethod.value === 'Caesar') {
 
     result.value =
@@ -365,13 +374,15 @@ function encryptText() {
         shiftValue.value
       )
 
+    await scrollToResult()
+
   }
 
 }
 
 
-
-function decryptText() {
+// DECRYPT
+async function decryptText() {
 
   errorMessage.value = ''
 
@@ -385,7 +396,7 @@ function decryptText() {
   }
 
 
-
+  // AES
   if (encryptionMethod.value === 'AES') {
 
     if (!encryptionKey.value.trim()) {
@@ -423,6 +434,8 @@ function decryptText() {
 
       result.value = originalText
 
+      await scrollToResult()
+
     } catch (error) {
 
       console.error(error)
@@ -436,7 +449,7 @@ function decryptText() {
   }
 
 
-
+  // CAESAR
   if (encryptionMethod.value === 'Caesar') {
 
     result.value =
@@ -445,13 +458,14 @@ function decryptText() {
         -shiftValue.value
       )
 
+    await scrollToResult()
+
   }
 
 }
 
 
-
-
+// CAESAR CIPHER
 function caesarCipher(
   text: string,
   shift: number
@@ -469,6 +483,7 @@ function caesarCipher(
         character.charCodeAt(0)
 
 
+      // UPPERCASE
       if (
         code >= 65 &&
         code <= 90
@@ -481,6 +496,7 @@ function caesarCipher(
       }
 
 
+      // LOWERCASE
       if (
         code >= 97 &&
         code <= 122
@@ -494,7 +510,6 @@ function caesarCipher(
 
 
       // OTHER CHARACTERS
-
       return character
 
     })
@@ -503,6 +518,7 @@ function caesarCipher(
 }
 
 
+// CLEAR
 function clearAll() {
 
   inputText.value = ''
@@ -518,7 +534,6 @@ function clearAll() {
 
 <style scoped>
 
-
 ion-content {
 
   --background: #fff5fa;
@@ -526,6 +541,13 @@ ion-content {
 
 }
 
+
+ion-content::part(scroll) {
+
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+}
 
 
 .app-header ion-toolbar {
@@ -624,12 +646,13 @@ ion-content {
 }
 
 
-
 .page-container {
 
   width: 100%;
 
   max-width: 850px;
+
+  min-height: 100%;
 
   margin: auto;
 
@@ -719,6 +742,8 @@ ion-content {
   position: relative;
 
   z-index: 2;
+
+  min-width: 0;
 
 }
 
@@ -843,6 +868,13 @@ ion-content {
   align-items: flex-start;
 
   margin-bottom: 12px;
+
+}
+
+
+.section-heading > div:last-child {
+
+  min-width: 0;
 
 }
 
@@ -1232,68 +1264,158 @@ ion-content {
   }
 
   .page-container {
-
     width: 100%;
-
     max-width: 100%;
-
-    padding: 20px 12px 30px;
-
+    min-height: 100%;
+    padding: 16px 10px calc(30px + env(safe-area-inset-bottom));
     box-sizing: border-box;
-
   }
-
 
   .hero-card {
-
+    width: 100%;
+    box-sizing: border-box;
     flex-direction: column;
-
     text-align: center;
-
-    padding: 25px 18px;
-
+    padding: 22px 16px;
+    margin-bottom: 18px;
   }
-
 
   .hero-card h1 {
-
-    font-size: 26px;
-
+    font-size: 24px;
   }
 
+  .hero-card p {
+    font-size: 13px;
+  }
 
   .main-card {
-
-    padding: 20px 16px;
-
+    width: 100%;
+    box-sizing: border-box;
+    padding: 18px 14px;
   }
 
+  .form-section {
+    margin-bottom: 22px;
+  }
+
+  .section-heading {
+    gap: 9px;
+  }
+
+  .section-heading h2 {
+    font-size: 15px;
+  }
+
+  .section-heading p {
+    font-size: 11px;
+  }
 
   .button-container {
-
     grid-template-columns: 1fr;
-
+    gap: 10px;
   }
 
-
-  .header-heart {
-
-    font-size: 24px;
-
+  .cute-button {
+    width: 100%;
+    height: 50px;
   }
 
+  .result-box {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 15px;
+    margin-top: 5px;
+  }
+
+  .result-title {
+    width: 100%;
+  }
+
+  .result-title h2 {
+    font-size: 16px;
+  }
+
+  .result-title p {
+    font-size: 11px;
+  }
 
   .cute-select,
   .cute-input,
   .cute-textarea,
   .result-textarea {
-
     width: 100%;
-
     max-width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+  }
 
+  .cute-textarea,
+  .result-textarea {
+    min-height: 120px;
+  }
+
+  .clear-button {
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  .header-content {
+    padding: 0 12px;
+  }
+
+  .brand-name {
+    font-size: 18px;
+  }
+
+  .brand-subtitle {
+    font-size: 9px;
+  }
+
+  .header-heart {
+    font-size: 24px;
+  }
+
+}
+
+
+/* TABLET */
+
+@media (min-width: 601px) and (max-width: 900px) {
+
+  .page-container {
+    padding: 24px 20px 36px;
+  }
+
+  .hero-card,
+  .main-card {
+    padding: 24px;
+  }
+
+}
+
+
+/* VERY SMALL PHONES */
+
+@media (max-width: 360px) {
+
+  .page-container {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .main-card {
+    padding: 16px 12px;
+  }
+
+  .hero-card {
+    padding: 20px 12px;
+  }
+
+  .hero-card h1 {
+    font-size: 22px;
   }
 
 }
 
 </style>
+```
